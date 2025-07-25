@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  # Aplicación principal
+  crabi-api:
+    build: .
+    ports:
+      - "8080:8080"
+    env_file:
+      - .env
+    environment:
+      - DOCKER_ENV=true
+      - DB_PATH=/data/crabi.db
+    volumes:
+      - ./data:/data
+
+    networks:
+      - crabi-network
+    restart: unless-stopped
+
+
+
+  # Base de datos SQLite (opcional, para desarrollo)
+  # La aplicación usa SQLite local, pero podríamos usar PostgreSQL en producción
+  # postgres:
+  #   image: postgres:15-alpine
+  #   environment:
+  #     POSTGRES_DB: crabi
+  #     POSTGRES_USER: crabi_user
+  #     POSTGRES_PASSWORD: crabi_password
+  #   volumes:
+  #     - postgres_data:/var/lib/postgresql/data
+  #   networks:
+  #     - crabi-network
+  #   restart: unless-stopped
+
+networks:
+  crabi-network:
+    driver: bridge
+
+volumes:
+  postgres_data: 

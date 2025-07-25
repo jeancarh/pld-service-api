@@ -1,0 +1,429 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "API para sistema de PLD (Prevención de Lavado de Dinero) de Crabi",
+        "title": "Crabi API",
+        "termsOfService": "http://swagger.io/terms/",
+        "contact": {
+            "name": "Crabi API Support",
+            "url": "https://github.com/crabi-test",
+            "email": "dev@crabi-test.com"
+        },
+        "license": {
+            "name": "Apache 2.0",
+            "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+        },
+        "version": "1.0"
+    },
+    "host": "localhost:8080",
+    "basePath": "/api/v1",
+    "paths": {
+        "/auth/login": {
+            "post": {
+                "description": "Autentica un usuario con email y contraseña",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Autenticar usuario",
+                "parameters": [
+                    {
+                        "description": "Credenciales de login",
+                        "name": "credentials",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/crabi-test_internal_infrastructure_http_dto.LoginRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/crabi-test_internal_infrastructure_http_dto.LoginResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/crabi-test_internal_infrastructure_http_dto.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/crabi-test_internal_infrastructure_http_dto.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/crabi-test_internal_infrastructure_http_dto.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/users": {
+            "post": {
+                "description": "Crea un nuevo usuario validando contra el servicio PLD",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "users"
+                ],
+                "summary": "Crear un nuevo usuario",
+                "parameters": [
+                    {
+                        "description": "Datos del usuario",
+                        "name": "user",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/crabi-test_internal_infrastructure_http_dto.CreateUserRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/crabi-test_internal_infrastructure_http_dto.UserResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/crabi-test_internal_infrastructure_http_dto.ErrorResponse"
+                        }
+                    },
+                    "409": {
+                        "description": "Usuario en lista negra",
+                        "schema": {
+                            "$ref": "#/definitions/crabi-test_internal_infrastructure_http_dto.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/crabi-test_internal_infrastructure_http_dto.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/users/me": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Obtiene la información del usuario autenticado",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "users"
+                ],
+                "summary": "Obtener información del usuario autenticado",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/crabi-test_internal_infrastructure_http_dto.UserResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/crabi-test_internal_infrastructure_http_dto.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/crabi-test_internal_infrastructure_http_dto.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/crabi-test_internal_infrastructure_http_dto.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/users/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Obtiene la información de un usuario por su ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "users"
+                ],
+                "summary": "Obtener usuario por ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID del usuario",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/crabi-test_internal_infrastructure_http_dto.UserResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/crabi-test_internal_infrastructure_http_dto.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/crabi-test_internal_infrastructure_http_dto.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/crabi-test_internal_infrastructure_http_dto.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Elimina un usuario por su ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "users"
+                ],
+                "summary": "Eliminar usuario",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID del usuario",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/crabi-test_internal_infrastructure_http_dto.SuccessResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/crabi-test_internal_infrastructure_http_dto.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/crabi-test_internal_infrastructure_http_dto.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/crabi-test_internal_infrastructure_http_dto.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "crabi-test_internal_infrastructure_http_dto.CreateUserRequest": {
+            "description": "Solicitud para crear un nuevo usuario",
+            "type": "object",
+            "required": [
+                "email",
+                "id_number",
+                "name",
+                "password"
+            ],
+            "properties": {
+                "email": {
+                    "description": "@Description Email del usuario (debe ser único)\n@Example \"juan.perez@email.com\"\n@Required",
+                    "type": "string",
+                    "example": "juan.perez@email.com"
+                },
+                "id_number": {
+                    "description": "@Description Número de identificación personal\n@Example \"12345678\"\n@Required",
+                    "type": "string",
+                    "maxLength": 20,
+                    "minLength": 8,
+                    "example": "12345678"
+                },
+                "name": {
+                    "description": "@Description Nombre completo del usuario\n@Example \"Juan Pérez\"\n@Required",
+                    "type": "string",
+                    "maxLength": 100,
+                    "minLength": 2,
+                    "example": "Juan Pérez"
+                },
+                "password": {
+                    "description": "@Description Contraseña del usuario (mínimo 8 caracteres)\n@Example \"password123\"\n@Required",
+                    "type": "string",
+                    "minLength": 8,
+                    "example": "password123"
+                }
+            }
+        },
+        "crabi-test_internal_infrastructure_http_dto.ErrorResponse": {
+            "description": "Respuesta de error",
+            "type": "object",
+            "properties": {
+                "details": {
+                    "description": "@Description Detalles adicionales del error\n@Example \"El campo email es requerido\"",
+                    "type": "string",
+                    "example": "El campo email es requerido"
+                },
+                "error": {
+                    "description": "@Description Mensaje de error\n@Example \"Error de validación\"",
+                    "type": "string",
+                    "example": "Error de validación"
+                }
+            }
+        },
+        "crabi-test_internal_infrastructure_http_dto.LoginRequest": {
+            "description": "Solicitud para autenticarse en el sistema",
+            "type": "object",
+            "required": [
+                "email",
+                "password"
+            ],
+            "properties": {
+                "email": {
+                    "description": "@Description Email del usuario\n@Example \"juan.perez@email.com\"\n@Required",
+                    "type": "string",
+                    "example": "juan.perez@email.com"
+                },
+                "password": {
+                    "description": "@Description Contraseña del usuario\n@Example \"password123\"\n@Required",
+                    "type": "string",
+                    "example": "password123"
+                }
+            }
+        },
+        "crabi-test_internal_infrastructure_http_dto.LoginResponse": {
+            "description": "Respuesta de autenticación exitosa",
+            "type": "object",
+            "properties": {
+                "token": {
+                    "description": "@Description Token JWT para autenticación\n@Example \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...\"",
+                    "type": "string",
+                    "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                },
+                "user": {
+                    "description": "@Description Información del usuario autenticado",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/crabi-test_internal_infrastructure_http_dto.UserResponse"
+                        }
+                    ]
+                }
+            }
+        },
+        "crabi-test_internal_infrastructure_http_dto.SuccessResponse": {
+            "description": "Respuesta de operación exitosa",
+            "type": "object",
+            "properties": {
+                "message": {
+                    "description": "@Description Mensaje de éxito\n@Example \"Usuario eliminado correctamente\"",
+                    "type": "string",
+                    "example": "Usuario eliminado correctamente"
+                }
+            }
+        },
+        "crabi-test_internal_infrastructure_http_dto.UserResponse": {
+            "description": "Información del usuario",
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "description": "@Description Fecha de creación del usuario\n@Example \"2024-01-15T10:30:00Z\"",
+                    "type": "string",
+                    "example": "2024-01-15T10:30:00Z"
+                },
+                "email": {
+                    "description": "@Description Email del usuario\n@Example \"juan.perez@email.com\"",
+                    "type": "string",
+                    "example": "juan.perez@email.com"
+                },
+                "id": {
+                    "description": "@Description ID único del usuario\n@Example \"1\"",
+                    "type": "integer",
+                    "example": 1
+                },
+                "id_number": {
+                    "description": "@Description Número de identificación personal\n@Example \"12345678\"",
+                    "type": "string",
+                    "example": "12345678"
+                },
+                "name": {
+                    "description": "@Description Nombre completo del usuario\n@Example \"Juan Pérez\"",
+                    "type": "string",
+                    "example": "Juan Pérez"
+                },
+                "updated_at": {
+                    "description": "@Description Fecha de última actualización del usuario\n@Example \"2024-01-15T10:30:00Z\"",
+                    "type": "string",
+                    "example": "2024-01-15T10:30:00Z"
+                }
+            }
+        }
+    },
+    "securityDefinitions": {
+        "BearerAuth": {
+            "description": "Type \"Bearer\" followed by a space and JWT token.",
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
+        }
+    }
+}

@@ -1,0 +1,332 @@
+basePath: /api/v1
+definitions:
+  crabi-test_internal_infrastructure_http_dto.CreateUserRequest:
+    description: Solicitud para crear un nuevo usuario
+    properties:
+      email:
+        description: |-
+          @Description Email del usuario (debe ser único)
+          @Example "juan.perez@email.com"
+          @Required
+        example: juan.perez@email.com
+        type: string
+      id_number:
+        description: |-
+          @Description Número de identificación personal
+          @Example "12345678"
+          @Required
+        example: "12345678"
+        maxLength: 20
+        minLength: 8
+        type: string
+      name:
+        description: |-
+          @Description Nombre completo del usuario
+          @Example "Juan Pérez"
+          @Required
+        example: Juan Pérez
+        maxLength: 100
+        minLength: 2
+        type: string
+      password:
+        description: |-
+          @Description Contraseña del usuario (mínimo 8 caracteres)
+          @Example "password123"
+          @Required
+        example: password123
+        minLength: 8
+        type: string
+    required:
+    - email
+    - id_number
+    - name
+    - password
+    type: object
+  crabi-test_internal_infrastructure_http_dto.ErrorResponse:
+    description: Respuesta de error
+    properties:
+      details:
+        description: |-
+          @Description Detalles adicionales del error
+          @Example "El campo email es requerido"
+        example: El campo email es requerido
+        type: string
+      error:
+        description: |-
+          @Description Mensaje de error
+          @Example "Error de validación"
+        example: Error de validación
+        type: string
+    type: object
+  crabi-test_internal_infrastructure_http_dto.LoginRequest:
+    description: Solicitud para autenticarse en el sistema
+    properties:
+      email:
+        description: |-
+          @Description Email del usuario
+          @Example "juan.perez@email.com"
+          @Required
+        example: juan.perez@email.com
+        type: string
+      password:
+        description: |-
+          @Description Contraseña del usuario
+          @Example "password123"
+          @Required
+        example: password123
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  crabi-test_internal_infrastructure_http_dto.LoginResponse:
+    description: Respuesta de autenticación exitosa
+    properties:
+      token:
+        description: |-
+          @Description Token JWT para autenticación
+          @Example "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+        example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+        type: string
+      user:
+        allOf:
+        - $ref: '#/definitions/crabi-test_internal_infrastructure_http_dto.UserResponse'
+        description: '@Description Información del usuario autenticado'
+    type: object
+  crabi-test_internal_infrastructure_http_dto.SuccessResponse:
+    description: Respuesta de operación exitosa
+    properties:
+      message:
+        description: |-
+          @Description Mensaje de éxito
+          @Example "Usuario eliminado correctamente"
+        example: Usuario eliminado correctamente
+        type: string
+    type: object
+  crabi-test_internal_infrastructure_http_dto.UserResponse:
+    description: Información del usuario
+    properties:
+      created_at:
+        description: |-
+          @Description Fecha de creación del usuario
+          @Example "2024-01-15T10:30:00Z"
+        example: "2024-01-15T10:30:00Z"
+        type: string
+      email:
+        description: |-
+          @Description Email del usuario
+          @Example "juan.perez@email.com"
+        example: juan.perez@email.com
+        type: string
+      id:
+        description: |-
+          @Description ID único del usuario
+          @Example "1"
+        example: 1
+        type: integer
+      id_number:
+        description: |-
+          @Description Número de identificación personal
+          @Example "12345678"
+        example: "12345678"
+        type: string
+      name:
+        description: |-
+          @Description Nombre completo del usuario
+          @Example "Juan Pérez"
+        example: Juan Pérez
+        type: string
+      updated_at:
+        description: |-
+          @Description Fecha de última actualización del usuario
+          @Example "2024-01-15T10:30:00Z"
+        example: "2024-01-15T10:30:00Z"
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact:
+    email: dev@crabi-test.com
+    name: Crabi API Support
+    url: https://github.com/crabi-test
+  description: API para sistema de PLD (Prevención de Lavado de Dinero) de Crabi
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: Crabi API
+  version: "1.0"
+paths:
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Autentica un usuario con email y contraseña
+      parameters:
+      - description: Credenciales de login
+        in: body
+        name: credentials
+        required: true
+        schema:
+          $ref: '#/definitions/crabi-test_internal_infrastructure_http_dto.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/crabi-test_internal_infrastructure_http_dto.LoginResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/crabi-test_internal_infrastructure_http_dto.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/crabi-test_internal_infrastructure_http_dto.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/crabi-test_internal_infrastructure_http_dto.ErrorResponse'
+      summary: Autenticar usuario
+      tags:
+      - auth
+  /users:
+    post:
+      consumes:
+      - application/json
+      description: Crea un nuevo usuario validando contra el servicio PLD
+      parameters:
+      - description: Datos del usuario
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/crabi-test_internal_infrastructure_http_dto.CreateUserRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/crabi-test_internal_infrastructure_http_dto.UserResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/crabi-test_internal_infrastructure_http_dto.ErrorResponse'
+        "409":
+          description: Usuario en lista negra
+          schema:
+            $ref: '#/definitions/crabi-test_internal_infrastructure_http_dto.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/crabi-test_internal_infrastructure_http_dto.ErrorResponse'
+      summary: Crear un nuevo usuario
+      tags:
+      - users
+  /users/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Elimina un usuario por su ID
+      parameters:
+      - description: ID del usuario
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/crabi-test_internal_infrastructure_http_dto.SuccessResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/crabi-test_internal_infrastructure_http_dto.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/crabi-test_internal_infrastructure_http_dto.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/crabi-test_internal_infrastructure_http_dto.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Eliminar usuario
+      tags:
+      - users
+    get:
+      consumes:
+      - application/json
+      description: Obtiene la información de un usuario por su ID
+      parameters:
+      - description: ID del usuario
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/crabi-test_internal_infrastructure_http_dto.UserResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/crabi-test_internal_infrastructure_http_dto.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/crabi-test_internal_infrastructure_http_dto.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/crabi-test_internal_infrastructure_http_dto.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Obtener usuario por ID
+      tags:
+      - users
+  /users/me:
+    get:
+      consumes:
+      - application/json
+      description: Obtiene la información del usuario autenticado
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/crabi-test_internal_infrastructure_http_dto.UserResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/crabi-test_internal_infrastructure_http_dto.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/crabi-test_internal_infrastructure_http_dto.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/crabi-test_internal_infrastructure_http_dto.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Obtener información del usuario autenticado
+      tags:
+      - users
+securityDefinitions:
+  BearerAuth:
+    description: Type "Bearer" followed by a space and JWT token.
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

@@ -1,0 +1,275 @@
+{
+	"info": {
+		"_postman_id": "crabi-api-collection",
+		"name": "Crabi API",
+		"description": "Colección de endpoints para la API de Crabi - Sistema de PLD\n\nEsta colección incluye todos los endpoints requeridos:\n1. Crear Usuario (con validación PLD)\n2. Login (autenticación JWT)\n3. Obtener Usuario (información del usuario autenticado)\n\nVariables de entorno necesarias:\n- base_url: URL base de la API (ej: http://localhost:8080)\n- token: Token JWT obtenido del login (se establece automáticamente)",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Auth",
+			"item": [
+				{
+					"name": "Login",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"juan.perez@email.com\",\n  \"password\": \"password123\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/auth/login",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"auth",
+								"login"
+							]
+						},
+						"description": "Autentica un usuario con email y contraseña.\n\n**Parámetros requeridos:**\n- email: Email del usuario\n- password: Contraseña del usuario\n\n**Respuesta exitosa (200):**\n```json\n{\n  \"token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...\",\n  \"user\": {\n    \"id\": 1,\n    \"name\": \"Juan Pérez\",\n    \"email\": \"juan.perez@email.com\",\n    \"id_number\": \"12345678\"\n  }\n}\n```\n\n**Respuesta de error (401):**\n```json\n{\n  \"error\": \"Credenciales inválidas\"\n}\n```"
+					},
+					"response": [],
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    const response = pm.response.json();",
+									"    pm.environment.set('token', response.token);",
+									"    console.log('Token guardado:', response.token);",
+									"    pm.test('Login exitoso', function () {",
+									"        pm.expect(response).to.have.property('token');",
+									"        pm.expect(response).to.have.property('user');",
+									"        pm.expect(response.user).to.have.property('id');",
+									"        pm.expect(response.user).to.have.property('email');",
+									"    });",
+									"} else {",
+									"    pm.test('Login falló', function () {",
+									"        pm.expect(pm.response.code).to.be.oneOf([400, 401, 500]);",
+									"    });",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					]
+				}
+			],
+			"description": "Endpoints de autenticación"
+		},
+		{
+			"name": "Users",
+			"item": [
+				{
+					"name": "Crear Usuario",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Juan Pérez\",\n  \"email\": \"juan.perez@email.com\",\n  \"password\": \"password123\",\n  \"id_number\": \"12345678\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/users",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"users"
+							]
+						},
+						"description": "Crea un nuevo usuario validando contra el servicio PLD.\n\n**Parámetros requeridos:**\n- name: Nombre completo del usuario\n- email: Email único del usuario\n- password: Contraseña (mínimo 6 caracteres)\n- id_number: Número de identificación\n\n**Validaciones:**\n- Email debe ser válido\n- Password mínimo 6 caracteres\n- ID number debe ser numérico\n- Usuario no debe estar en lista negra del PLD\n\n**Respuesta exitosa (201):**\n```json\n{\n  \"id\": 1,\n  \"name\": \"Juan Pérez\",\n  \"email\": \"juan.perez@email.com\",\n  \"id_number\": \"12345678\",\n  \"created_at\": \"2025-07-25T08:51:34Z\",\n  \"updated_at\": \"2025-07-25T08:51:34Z\"\n}\n```\n\n**Respuesta de error (400/403):**\n```json\n{\n  \"error\": \"Usuario en lista negra del PLD\"\n}\n```"
+					},
+					"response": []
+				},
+				{
+					"name": "Obtener Usuario Autenticado",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/users/me",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"users",
+								"me"
+							]
+						},
+						"description": "Obtiene la información del usuario autenticado.\n\n**Headers requeridos:**\n- Authorization: Bearer {token}\n\n**Respuesta exitosa (200):**\n```json\n{\n  \"id\": 1,\n  \"name\": \"Juan Pérez\",\n  \"email\": \"juan.perez@email.com\",\n  \"id_number\": \"12345678\",\n  \"created_at\": \"2025-07-25T08:51:34Z\",\n  \"updated_at\": \"2025-07-25T08:51:34Z\"\n}\n```\n\n**Respuesta de error (401):**\n```json\n{\n  \"error\": \"Token inválido o expirado\"\n}\n```"
+					},
+					"response": []
+				},
+				{
+					"name": "Obtener Usuario por ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/users/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"users",
+								"1"
+							]
+						},
+						"description": "Obtiene la información de un usuario por su ID.\n\n**Headers requeridos:**\n- Authorization: Bearer {token}\n\n**Parámetros de URL:**\n- id: ID del usuario a consultar\n\n**Respuesta exitosa (200):**\n```json\n{\n  \"id\": 1,\n  \"name\": \"Juan Pérez\",\n  \"email\": \"juan.perez@email.com\",\n  \"id_number\": \"12345678\",\n  \"created_at\": \"2025-07-25T08:51:34Z\",\n  \"updated_at\": \"2025-07-25T08:51:34Z\"\n}\n```\n\n**Respuesta de error (404):**\n```json\n{\n  \"error\": \"Usuario no encontrado\"\n}\n```"
+					},
+					"response": []
+				},
+				{
+					"name": "Eliminar Usuario",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/users/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"users",
+								"1"
+							]
+						},
+						"description": "Elimina un usuario por su ID.\n\n**Headers requeridos:**\n- Authorization: Bearer {token}\n\n**Parámetros de URL:**\n- id: ID del usuario a eliminar\n\n**Respuesta exitosa (200):**\n```json\n{\n  \"message\": \"Usuario eliminado correctamente\"\n}\n```\n\n**Respuesta de error (404):**\n```json\n{\n  \"error\": \"Usuario no encontrado\"\n}\n```"
+					},
+					"response": []
+				}
+			],
+			"description": "Endpoints de gestión de usuarios"
+		},
+		{
+			"name": "Health",
+			"item": [
+				{
+					"name": "Health Check",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/health",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"health"
+							]
+						},
+						"description": "Verifica el estado de la API.\n\n**Respuesta exitosa (200):**\n```json\n{\n  \"message\": \"Crabi API is running\",\n  \"status\": \"OK\"\n}\n```"
+					},
+					"response": []
+				}
+			],
+			"description": "Endpoints de monitoreo"
+		},
+		{
+			"name": "Documentación",
+			"item": [
+				{
+					"name": "Swagger UI",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/swagger/index.html",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"swagger",
+								"index.html"
+							]
+						},
+						"description": "Accede a la documentación interactiva de la API (Swagger UI).\n\nEsta página permite:\n- Ver todos los endpoints disponibles\n- Probar los endpoints directamente desde el navegador\n- Ver los esquemas de request/response\n- Ejecutar requests de prueba"
+					},
+					"response": []
+				}
+			],
+			"description": "Acceso a la documentación de la API"
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"// Script que se ejecuta antes de cada request",
+					"console.log('Ejecutando request:', pm.request.name);"
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"// Script que se ejecuta después de cada response",
+					"pm.test('Status code is valid', function () {",
+					"    pm.expect(pm.response.code).to.be.oneOf([200, 201, 400, 401, 403, 404, 500]);",
+					"});",
+					"",
+					"pm.test('Response time is less than 5000ms', function () {",
+					"    pm.expect(pm.response.responseTime).to.be.below(5000);",
+					"});"
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:8080",
+			"type": "string",
+			"description": "URL base de la API. Cambiar según el entorno (localhost para desarrollo, IP del servidor para producción)"
+		},
+		{
+			"key": "token",
+			"value": "",
+			"type": "string",
+			"description": "Token JWT obtenido del endpoint de login. Se establece automáticamente al hacer login exitoso"
+		}
+	]
+} 
