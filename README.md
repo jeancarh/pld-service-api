@@ -1,4 +1,4 @@
-# 🦀 Crabi API - Sistema de PLD
+# Crabi API - Sistema de PLD
 
 Sistema de gestión de usuarios con validación PLD (Prevención de Lavado de Dinero) implementado en Go con arquitectura hexagonal.
 
