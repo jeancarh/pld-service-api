@@ -613,11 +613,6 @@ type CreateUserRequest struct {
 ### Error: "Port 8080 already in use"
 **Solución**: Cambiar `PORT` en `.env` o detener proceso existente
 
-## 📞 Contacto
-
-- **Repositorio**: [GitHub](https://github.com/crabi-test)
-- **Email**: dev@crabi-test.com
-- **Documentación**: http://localhost:8080/swagger/index.html
 
 ---
 
